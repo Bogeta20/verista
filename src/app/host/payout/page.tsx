@@ -23,6 +23,7 @@ export default async function HostPayoutPage() {
     >
       <PayoutForm
         initialBankName={payout?.bankName ?? ""}
+        initialBankCode={payout?.bankCode ?? ""}
         initialAccountNumber={payout?.accountNumber ?? ""}
       />
     </HostStepShell>

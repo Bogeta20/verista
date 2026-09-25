@@ -1,6 +1,7 @@
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { payoutSchema } from "@/lib/validation";
+import { isPaystackConfigured, createSubaccount } from "@/lib/paystack";
 
 export async function GET() {
   const user = await getCurrentUser();
@@ -25,19 +26,51 @@ export async function POST(request: Request) {
     );
   }
 
-  const { bankName, accountNumber } = parsed.data;
+  const { bankName, bankCode, accountNumber } = parsed.data;
 
-  // Stubbed Paystack Subaccount creation — swapped for the real API call
-  // once test keys are wired up in a later stage.
-  const paystackSubaccountCode = `ACCTSTUB_${Math.random()
-    .toString(36)
-    .slice(2, 10)
-    .toUpperCase()}`;
+  const existing = await prisma.hostPayoutInfo.findUnique({
+    where: { hostId: user.id },
+  });
+
+  let paystackSubaccountCode = existing?.paystackSubaccountCode ?? null;
+
+  if (!existing) {
+    if (isPaystackConfigured() && bankCode) {
+      try {
+        paystackSubaccountCode = await createSubaccount({
+          businessName: user.name,
+          bankCode,
+          accountNumber,
+        });
+      } catch (error) {
+        return Response.json(
+          {
+            error: `Couldn't verify your bank details with Paystack: ${(error as Error).message}`,
+          },
+          { status: 502 }
+        );
+      }
+    } else {
+      // No Paystack keys yet (or no bank code resolved) — keep hosting
+      // usable with a stub, per the original instruction to ask before
+      // steps that need real credentials.
+      paystackSubaccountCode = `ACCTSTUB_${Math.random()
+        .toString(36)
+        .slice(2, 10)
+        .toUpperCase()}`;
+    }
+  }
 
   const payout = await prisma.hostPayoutInfo.upsert({
     where: { hostId: user.id },
-    create: { hostId: user.id, bankName, accountNumber, paystackSubaccountCode },
-    update: { bankName, accountNumber },
+    create: {
+      hostId: user.id,
+      bankName,
+      bankCode: bankCode || null,
+      accountNumber,
+      paystackSubaccountCode,
+    },
+    update: { bankName, bankCode: bankCode || null, accountNumber },
   });
 
   if (user.role === "GUEST") {

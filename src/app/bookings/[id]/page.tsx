@@ -4,6 +4,8 @@ import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Logo } from "@/components/Logo";
 import { MessageThread } from "@/components/MessageThread";
+import { PayButton } from "@/components/PayButton";
+import { isPaystackConfigured } from "@/lib/paystack";
 import { nightsBetween, computeBookingPrice } from "@/lib/pricing";
 import { formatNaira } from "@/lib/format";
 import { BOOKING_STATUS_STYLE } from "@/lib/constants";
@@ -20,7 +22,16 @@ export default async function BookingPage({
   const booking = await prisma.booking.findUnique({
     where: { id },
     include: {
-      listing: { include: { host: { select: { name: true } } } },
+      listing: {
+        include: {
+          host: {
+            select: {
+              name: true,
+              payoutInfo: { select: { paystackSubaccountCode: true } },
+            },
+          },
+        },
+      },
       services: { include: { service: true } },
     },
   });
@@ -165,10 +176,16 @@ export default async function BookingPage({
           </div>
 
           {booking.status === "PENDING" && (
-            <p className="mt-5 rounded-xl bg-accent-tint px-4 py-3 text-[13px] leading-relaxed text-foreground">
-              This booking is saved and pending payment. It will be confirmed
-              once payment is set up.
-            </p>
+            <PayButton
+              bookingId={booking.id}
+              payable={
+                isPaystackConfigured() &&
+                Boolean(booking.listing.host.payoutInfo?.paystackSubaccountCode) &&
+                !booking.listing.host.payoutInfo?.paystackSubaccountCode?.startsWith(
+                  "ACCTSTUB_"
+                )
+              }
+            />
           )}
         </div>
 

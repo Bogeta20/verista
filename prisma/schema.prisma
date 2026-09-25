@@ -22,10 +22,11 @@ model User {
 }
 
 model HostPayoutInfo {
-  id                     String @id @default(cuid())
-  hostId                 String @unique
-  host                   User   @relation(fields: [hostId], references: [id])
+  id                     String  @id @default(cuid())
+  hostId                 String  @unique
+  host                   User    @relation(fields: [hostId], references: [id])
   bankName               String
+  bankCode               String? // Paystack settlement bank code, required to create a real Subaccount
   accountNumber          String
   paystackSubaccountCode String?
 }

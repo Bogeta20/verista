@@ -16,6 +16,7 @@ export const loginSchema = z.object({
 
 export const payoutSchema = z.object({
   bankName: z.string().trim().min(2, "Enter your bank name").max(80),
+  bankCode: z.string().trim().max(20).optional().or(z.literal("")),
   accountNumber: z
     .string()
     .trim()
