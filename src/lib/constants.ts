@@ -75,3 +75,13 @@ export const VAT_RATE = 0.075;
 // Verista's take of each booking's accommodation total. Not specified in
 // the original brief — flag if this should be a different number.
 export const HOST_COMMISSION_RATE = 0.12;
+
+export const BOOKING_STATUS_STYLE: Record<
+  string,
+  { label: string; className: string }
+> = {
+  PENDING: { label: "Pending payment", className: "bg-accent-tint text-accent" },
+  CONFIRMED: { label: "Confirmed", className: "bg-teal/10 text-teal" },
+  CANCELLED: { label: "Cancelled", className: "bg-border/60 text-muted" },
+  COMPLETED: { label: "Completed", className: "bg-teal/10 text-teal" },
+};

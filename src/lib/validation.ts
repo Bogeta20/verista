@@ -101,3 +101,7 @@ export const bookingCreateSchema = z
     message: "Check-in can't be in the past",
     path: ["checkIn"],
   });
+
+export const messageCreateSchema = z.object({
+  content: z.string().trim().min(1, "Write a message").max(2000),
+});

@@ -3,17 +3,12 @@ import { notFound, redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Logo } from "@/components/Logo";
+import { MessageThread } from "@/components/MessageThread";
 import { nightsBetween, computeBookingPrice } from "@/lib/pricing";
 import { formatNaira } from "@/lib/format";
+import { BOOKING_STATUS_STYLE } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
-
-const STATUS_STYLE: Record<string, { label: string; className: string }> = {
-  PENDING: { label: "Pending payment", className: "bg-accent-tint text-accent" },
-  CONFIRMED: { label: "Confirmed", className: "bg-teal/10 text-teal" },
-  CANCELLED: { label: "Cancelled", className: "bg-border/60 text-muted" },
-  COMPLETED: { label: "Completed", className: "bg-teal/10 text-teal" },
-};
 
 export default async function BookingPage({
   params,
@@ -31,6 +26,12 @@ export default async function BookingPage({
   });
   if (!booking || booking.guestId !== user.id) notFound();
 
+  const messages = await prisma.message.findMany({
+    where: { bookingId: id },
+    include: { sender: { select: { id: true, name: true } } },
+    orderBy: { createdAt: "asc" },
+  });
+
   const nights = nightsBetween(booking.checkIn, booking.checkOut);
   const breakdown = computeBookingPrice({
     pricePerNight: booking.listing.pricePerNight,
@@ -43,7 +44,7 @@ export default async function BookingPage({
     })),
   });
 
-  const status = STATUS_STYLE[booking.status] ?? STATUS_STYLE.PENDING;
+  const status = BOOKING_STATUS_STYLE[booking.status] ?? BOOKING_STATUS_STYLE.PENDING;
 
   return (
     <div className="flex flex-1 justify-center px-5 py-8 sm:py-12">
@@ -169,6 +170,21 @@ export default async function BookingPage({
               once payment is set up.
             </p>
           )}
+        </div>
+
+        <div className="mt-4">
+          <div className="mb-2 px-1 text-[13px] font-semibold text-foreground">
+            Messages
+          </div>
+          <MessageThread
+            bookingId={booking.id}
+            currentUserId={user.id}
+            otherPartyName={booking.listing.host.name}
+            initialMessages={messages.map((m) => ({
+              ...m,
+              createdAt: m.createdAt.toISOString(),
+            }))}
+          />
         </div>
       </div>
     </div>

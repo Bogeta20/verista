@@ -110,6 +110,12 @@ export default async function HostDashboardPage() {
                 </div>
                 <div className="mt-3 flex items-center gap-4">
                   <Link
+                    href={`/host/listing/${listing.id}/bookings`}
+                    className="text-xs font-bold text-foreground"
+                  >
+                    Bookings
+                  </Link>
+                  <Link
                     href={`/host/listing/${listing.id}/services`}
                     className="text-xs font-bold text-foreground"
                   >
