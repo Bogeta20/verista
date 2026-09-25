@@ -1,6 +1,6 @@
 import { AMENITIES } from "@/lib/constants";
 
-const ICONS: Record<string, React.ReactNode> = {
+export const AMENITY_ICONS: Record<string, React.ReactNode> = {
   wifi: (
     <>
       <path d="M2 8.5a15 15 0 0 1 20 0" />
@@ -104,7 +104,7 @@ export function AmenitiesGrid({
                 strokeLinecap="round"
                 strokeLinejoin="round"
               >
-                {ICONS[amenity.key]}
+                {AMENITY_ICONS[amenity.key]}
               </svg>
             </span>
             <span

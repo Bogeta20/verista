@@ -80,3 +80,24 @@ export const serviceUpdateSchema = z
   .refine((data) => Object.keys(data).length > 0, {
     message: "Nothing to update",
   });
+
+const isoDate = z.string().refine((s) => !Number.isNaN(Date.parse(s)), {
+  message: "Invalid date",
+});
+
+export const bookingCreateSchema = z
+  .object({
+    listingId: z.string().min(1),
+    checkIn: isoDate,
+    checkOut: isoDate,
+    guestCount: z.number().int().positive().max(50).default(1),
+    serviceIds: z.array(z.string()).default([]),
+  })
+  .refine((data) => new Date(data.checkOut) > new Date(data.checkIn), {
+    message: "Check-out must be after check-in",
+    path: ["checkOut"],
+  })
+  .refine((data) => new Date(data.checkIn) >= new Date(new Date().toDateString()), {
+    message: "Check-in can't be in the past",
+    path: ["checkIn"],
+  });

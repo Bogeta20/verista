@@ -1,10 +1,15 @@
+import Link from "next/link";
+import { formatNaira, isRecentListing } from "@/lib/format";
+import { toneForId } from "@/lib/tone";
+
 export type ListingCardData = {
+  id: string;
   title: string;
   area: string;
-  price: string;
-  tone: string;
-  isNew?: boolean;
-  hasExtras?: boolean;
+  pricePerNight: number; // kobo
+  photos: string[];
+  createdAt: string;
+  services: { id: string }[];
 };
 
 export function ListingCard({
@@ -14,30 +19,42 @@ export function ListingCard({
   listing: ListingCardData;
   imageHeight?: number;
 }) {
+  const isNew = isRecentListing(listing.createdAt);
+  const hasExtras = listing.services.length > 0;
+  const photo = listing.photos[0];
+
   return (
-    <a
-      href="#"
+    <Link
+      href={`/listing/${listing.id}`}
       className="block overflow-hidden rounded-2xl border border-border bg-white"
     >
       <div
         className="relative flex items-center justify-center"
-        style={{ height: imageHeight, background: listing.tone }}
+        style={{
+          height: imageHeight,
+          background: photo ? undefined : toneForId(listing.id),
+          backgroundImage: photo ? `url(${photo})` : undefined,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
       >
-        <svg
-          width="28"
-          height="28"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="var(--color-muted)"
-          strokeWidth={1.6}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="opacity-55"
-        >
-          <rect x="3" y="6" width="18" height="13" rx="2" />
-          <circle cx="12" cy="12.5" r="3.4" />
-          <path d="M8 6l1.6-2.2h4.8L16 6" />
-        </svg>
+        {!photo && (
+          <svg
+            width="28"
+            height="28"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="var(--color-muted)"
+            strokeWidth={1.6}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="opacity-55"
+          >
+            <rect x="3" y="6" width="18" height="13" rx="2" />
+            <circle cx="12" cy="12.5" r="3.4" />
+            <path d="M8 6l1.6-2.2h4.8L16 6" />
+          </svg>
+        )}
         <button
           aria-label="Save listing"
           className="absolute right-2.5 top-2.5 flex h-8 w-8 items-center justify-center rounded-full bg-white/85"
@@ -64,7 +81,7 @@ export function ListingCard({
           <span className="text-xs text-muted sm:text-[13px]">
             {listing.area}
           </span>
-          {listing.isNew && (
+          {isNew && (
             <span className="rounded-full bg-accent-tint px-2 py-0.5 text-[10px] font-bold text-accent">
               NEW
             </span>
@@ -72,16 +89,16 @@ export function ListingCard({
         </div>
         <div>
           <span className="text-sm font-bold text-foreground sm:text-[15px]">
-            {listing.price}
+            {formatNaira(listing.pricePerNight)}
           </span>
           <span className="text-xs text-muted sm:text-[13px]"> / night</span>
         </div>
-        {listing.hasExtras && (
+        {hasExtras && (
           <span className="mt-0.5 self-start rounded-full bg-teal/10 px-2.5 py-0.5 text-[10px] font-semibold text-teal">
             + Extras available
           </span>
         )}
       </div>
-    </a>
+    </Link>
   );
 }

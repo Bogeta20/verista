@@ -76,6 +76,7 @@ model Booking {
   guest            User          @relation("GuestBookings", fields: [guestId], references: [id])
   checkIn          DateTime
   checkOut         DateTime
+  guestCount       Int      @default(1)
   totalPrice       Int // kobo, what guest pays
   hostPayout       Int // kobo, after commission
   commissionAmount Int // kobo

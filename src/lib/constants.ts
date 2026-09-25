@@ -65,3 +65,13 @@ export const PRICE_TYPE_LABELS: Record<string, string> = {
   per_stay: "Per stay",
   per_visit: "Per visit",
 };
+
+// Lagos State Hotel Occupancy & Restaurant Consumption tax, and standard
+// Nigerian VAT — applied to the accommodation subtotal (after any
+// discount), not to add-on services.
+export const HORC_TAX_RATE = 0.05;
+export const VAT_RATE = 0.075;
+
+// Verista's take of each booking's accommodation total. Not specified in
+// the original brief — flag if this should be a different number.
+export const HOST_COMMISSION_RATE = 0.12;
