@@ -70,9 +70,12 @@ export default async function Home() {
           <a href="#" className="text-[15px] font-medium text-foreground">
             Explore
           </a>
-          <a href="#" className="text-[15px] font-medium text-foreground">
+          <Link
+            href="/become-host"
+            className="text-[15px] font-medium text-foreground"
+          >
             Become a host
-          </a>
+          </Link>
           <AuthHeaderActions user={user} />
         </div>
       </header>
