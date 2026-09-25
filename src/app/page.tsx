@@ -1,7 +1,12 @@
+import Link from "next/link";
 import { Logo } from "@/components/Logo";
 import { Listings } from "@/components/Listings";
 import { BottomNav } from "@/components/BottomNav";
+import { AuthHeaderActions } from "@/components/AuthHeaderActions";
 import type { ListingCardData } from "@/components/ListingCard";
+import { getCurrentUser } from "@/lib/auth";
+
+export const dynamic = "force-dynamic";
 
 // Placeholder data — wired to the real search/listing API in a later stage.
 const listings: ListingCardData[] = [
@@ -51,14 +56,16 @@ function SearchField({ label, value }: { label: string; value: string }) {
   );
 }
 
-export default function Home() {
+export default async function Home() {
+  const user = await getCurrentUser();
+
   return (
     <div className="flex flex-1 flex-col">
       {/* Desktop header */}
       <header className="hidden items-center justify-between border-b border-border px-16 py-6 lg:flex">
-        <a href="#">
+        <Link href="/">
           <Logo />
-        </a>
+        </Link>
         <div className="flex items-center gap-9">
           <a href="#" className="text-[15px] font-medium text-foreground">
             Explore
@@ -66,12 +73,7 @@ export default function Home() {
           <a href="#" className="text-[15px] font-medium text-foreground">
             Become a host
           </a>
-          <a href="#" className="text-[15px] font-medium text-muted">
-            Log in
-          </a>
-          <button className="rounded-[10px] bg-accent px-[22px] py-[11px] text-sm font-semibold text-white">
-            Sign up
-          </button>
+          <AuthHeaderActions user={user} />
         </div>
       </header>
 
@@ -158,7 +160,7 @@ export default function Home() {
         </div>
       </footer>
 
-      <BottomNav />
+      <BottomNav loggedIn={Boolean(user)} />
     </div>
   );
 }

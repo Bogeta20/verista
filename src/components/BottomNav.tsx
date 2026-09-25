@@ -40,15 +40,16 @@ const ITEMS = [
   },
 ];
 
-export function BottomNav() {
+export function BottomNav({ loggedIn }: { loggedIn: boolean }) {
   return (
     <nav className="fixed inset-x-0 bottom-0 z-10 flex items-center justify-around border-t border-border bg-white px-0 py-3 pb-5 lg:hidden">
       {ITEMS.map((item) => {
         const color = item.active ? "var(--color-accent)" : "#98907E";
+        const href = item.label === "Profile" && !loggedIn ? "/login" : "#";
         return (
           <a
             key={item.label}
-            href="#"
+            href={href}
             className="flex flex-col items-center gap-1"
           >
             {item.icon(color)}
