@@ -45,7 +45,12 @@ export function BottomNav({ loggedIn }: { loggedIn: boolean }) {
     <nav className="fixed inset-x-0 bottom-0 z-10 flex items-center justify-around border-t border-border bg-white px-0 py-3 pb-5 lg:hidden">
       {ITEMS.map((item) => {
         const color = item.active ? "var(--color-accent)" : "#98907E";
-        const href = item.label === "Profile" && !loggedIn ? "/login" : "#";
+        const href =
+          (item.label === "Profile" || item.label === "Bookings") && !loggedIn
+            ? "/login"
+            : item.label === "Bookings"
+              ? "/bookings"
+              : "#";
         return (
           <a
             key={item.label}

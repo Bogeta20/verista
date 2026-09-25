@@ -25,6 +25,15 @@ export default async function HostBookingPage({
   });
   if (!booking || booking.listing.hostId !== user.id) notFound();
 
+  const previousStays = await prisma.booking.count({
+    where: {
+      guestId: booking.guestId,
+      listing: { hostId: user.id },
+      status: { in: ["CONFIRMED", "COMPLETED"] },
+      id: { not: booking.id },
+    },
+  });
+
   const messages = await prisma.message.findMany({
     where: { bookingId: id },
     include: { sender: { select: { id: true, name: true } } },
@@ -52,10 +61,21 @@ export default async function HostBookingPage({
           >
             {status.label}
           </span>
-          <h1 className="mt-3 font-serif text-2xl font-semibold text-foreground">
-            {booking.guest.name}
-          </h1>
-          <p className="mt-1 text-sm text-muted">
+          <div className="mt-3 flex items-center gap-3">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-teal/10 font-serif text-lg font-bold text-teal">
+              {booking.guest.name.charAt(0).toUpperCase()}
+            </span>
+            <div>
+              <div className="font-serif text-xl font-semibold text-foreground">
+                {booking.guest.name}
+              </div>
+              <div className="text-xs text-muted">
+                Guest · {previousStays}{" "}
+                {previousStays === 1 ? "previous stay" : "previous stays"}
+              </div>
+            </div>
+          </div>
+          <p className="mt-3 text-sm text-muted">
             {booking.listing.title} ·{" "}
             {booking.checkIn.toLocaleDateString("en-NG", {
               day: "numeric",

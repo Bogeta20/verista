@@ -23,16 +23,27 @@ export default async function HostDashboardPage() {
 
   const newListingHref = payout ? "/host/listing/new" : "/host/payout";
 
-  const paidOutThisMonth = await prisma.booking.aggregate({
-    _sum: { hostPayout: true },
-    where: {
-      listing: { hostId: user.id },
-      status: "COMPLETED",
-      createdAt: {
-        gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+  const [paidOutThisMonth, recentPayouts] = await Promise.all([
+    prisma.booking.aggregate({
+      _sum: { hostPayout: true },
+      where: {
+        listing: { hostId: user.id },
+        status: "COMPLETED",
+        createdAt: {
+          gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+        },
       },
-    },
-  });
+    }),
+    prisma.booking.findMany({
+      where: {
+        listing: { hostId: user.id },
+        status: { in: ["CONFIRMED", "COMPLETED"] },
+      },
+      include: { listing: { select: { title: true } } },
+      orderBy: { checkIn: "desc" },
+      take: 5,
+    }),
+  ]);
 
   return (
     <div className="flex flex-1 justify-center px-5 py-8 sm:py-12">
@@ -45,8 +56,14 @@ export default async function HostDashboardPage() {
             <Logo size={30} />
           </Link>
         </div>
+        <Link
+          href="/host/bookings"
+          className="mt-1 inline-block text-sm font-medium text-muted"
+        >
+          All bookings →
+        </Link>
 
-        <div className="mt-6 rounded-2xl border border-border bg-white p-4">
+        <div className="mt-4 rounded-2xl border border-border bg-white p-4">
           <div className="text-xs text-muted">This month&rsquo;s payout</div>
           <div className="mt-1 text-[22px] font-bold text-foreground">
             {formatNaira(paidOutThisMonth._sum.hostPayout ?? 0)}
@@ -56,6 +73,29 @@ export default async function HostDashboardPage() {
               ? `Paid directly to ${payout.bankName} •••${payout.accountNumber.slice(-1)}`
               : "Add payout details to start hosting"}
           </div>
+
+          {recentPayouts.length > 0 && (
+            <div className="mt-3 flex flex-col gap-2 border-t border-border pt-3">
+              {recentPayouts.map((booking) => (
+                <Link
+                  key={booking.id}
+                  href={`/host/bookings/${booking.id}`}
+                  className="flex items-center justify-between text-[13px]"
+                >
+                  <span className="text-muted">
+                    {booking.listing.title} ·{" "}
+                    {booking.checkIn.toLocaleDateString("en-NG", {
+                      day: "numeric",
+                      month: "short",
+                    })}
+                  </span>
+                  <span className="font-semibold text-foreground">
+                    {formatNaira(booking.hostPayout)}
+                  </span>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
 
         <Link
