@@ -1,21 +1,45 @@
-export function Logo({ className = "" }: { className?: string }) {
+export function LogoMark({ size = 36 }: { size?: number }) {
+  return (
+    <span
+      className="flex shrink-0 items-center justify-center rounded-[28%] bg-accent"
+      style={{ width: size, height: size }}
+    >
+      <svg
+        viewBox="0 0 36 36"
+        width={size * 0.56}
+        height={size * 0.56}
+        fill="none"
+        aria-hidden="true"
+      >
+        <path
+          d="M18 4C11.4 4 6 9.4 6 16c0 9 12 17 12 17s12-8 12-17c0-6.6-5.4-12-12-12z"
+          fill="#FFFFFF"
+        />
+        <path
+          d="M12 16 L18 10.5 L24 16"
+          stroke="var(--color-accent)"
+          strokeWidth={2.2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="none"
+        />
+        <circle cx="18" cy="20.5" r="2.6" fill="var(--color-gold)" />
+      </svg>
+    </span>
+  );
+}
+
+export function Logo({
+  className = "",
+  size = 36,
+}: {
+  className?: string;
+  size?: number;
+}) {
   return (
     <div className={`flex items-center gap-2.5 ${className}`}>
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent">
-        <svg
-          viewBox="0 0 24 24"
-          className="h-5 w-5"
-          fill="none"
-          aria-hidden="true"
-        >
-          <path
-            d="M12 3.2 3.6 10.4V20.4H20.4V10.4Z"
-            fill="#FFFFFF"
-          />
-          <circle cx="15.4" cy="13.6" r="1.7" fill="var(--color-gold)" />
-        </svg>
-      </span>
-      <span className="font-serif text-xl font-bold tracking-tight text-foreground">
+      <LogoMark size={size} />
+      <span className="font-serif text-2xl font-bold tracking-tight text-accent">
         Verista
       </span>
     </div>
